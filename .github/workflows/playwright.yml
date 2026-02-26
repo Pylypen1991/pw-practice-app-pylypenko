@@ -29,15 +29,16 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Start Angular server and wait for it
-      - name: Start Angular server
+      # Start server
+      - name: Start Angular server in background
+        run: npm run start &
+
+      # Wait until server is ready
+      - name: Wait for Angular to be ready
         uses: jakejarvis/wait-action@v0.1.3
         with:
           url: http://localhost:4200
           timeout: 180
-        env:
-          CI: true
-        run: npm run start &
 
       # Run Playwright tests
       - name: Run Playwright tests

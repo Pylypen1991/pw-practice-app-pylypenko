@@ -42,7 +42,7 @@ jobs:
           done
 
       - name: Run Playwright tests
-        run: npx playwright test --reporter=html
+        run: npm run pageObjects-chrome
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

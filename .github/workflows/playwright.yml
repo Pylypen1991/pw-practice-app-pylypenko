@@ -1,50 +1,39 @@
-name: Playwright Tests
-
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
     steps:
-      # Клон репо
       - uses: actions/checkout@v5
 
-      # Setup Node
       - uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: 'npm'
 
-      # Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Install Playwright browsers (кешуємо)
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Start server
-      - name: Start Angular server in background
+      # Start Angular server in background
+      - name: Start Angular server
         run: npm run start &
 
       # Wait until server is ready
-      - name: Wait for Angular to be ready
-        uses: jakejarvis/wait-action@v1
-        with:
-          url: http://localhost:4200
-          timeout: 180
+      - name: Wait for server
+        run: |
+          echo "Waiting for Angular server on http://localhost:4200..."
+          for i in {1..60}; do
+            if curl -s http://localhost:4200 > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            sleep 3
+          done
 
-      # Run Playwright tests
       - name: Run Playwright tests
         run: npx playwright test --reporter=html
 
-      # Upload HTML report
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
